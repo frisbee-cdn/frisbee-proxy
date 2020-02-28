@@ -1,0 +1,16 @@
+# Mac OS X
+.DS_Store
+
+# JetBrains
+.idea
+
+# VSCode
+.vscode
+
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+
+# Test binary
+*.test
