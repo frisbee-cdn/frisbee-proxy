@@ -6,17 +6,22 @@ import (
 	"log"
 	"net"
 	"net/http"
+
+	"github.com/frisbee-cdn/frisbee-proxy/pkg/cache"
 )
 
 // Server is the HTTP Server
 type Server struct {
-	router *http.ServeMux
+	router    *http.ServeMux
+	datastore *cache.MapDataStore
 }
 
 // NewServer
 func NewServer() *Server {
 	s := &Server{
 		router: http.NewServeMux(),
+		// TODO: Provide configuration structure
+		datastore: cache.NewMapDataStore(50),
 	}
 	s.registerHandlers()
 	return s
@@ -44,20 +49,35 @@ func (s *Server) registerHandlers() {
 
 		url := req.URL.Query().Get("url")
 
-		if url != "" {
-			resp, err := http.Get(url)
-			if err != nil {
-				log.Fatalln(err)
-			}
-
-			defer resp.Body.Close()
-
-			body, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				log.Fatalln(err)
-			}
-
-			fmt.Fprintf(w, string(body))
+		body, err := s.getFromOrigin(url)
+		if err != nil {
+			log.Fatalln(err)
 		}
+
+		s.datastore.Put(url, body)
+
+		r, _ := s.datastore.Get(url)
+		fmt.Fprintf(w, string(r))
 	})
+}
+
+func (s *Server) getFromOrigin(url string) ([]byte, error) {
+
+	if url != "" {
+		resp, err := http.Get(url)
+		if err != nil {
+			return nil, err
+		}
+
+		defer resp.Body.Close()
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		return body, nil
+	}
+
+	return nil, nil
 }
