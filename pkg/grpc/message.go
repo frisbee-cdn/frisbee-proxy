@@ -8,8 +8,8 @@ import (
 
 // MethodInvocation contains the MethodDescriptor and the Message used to invoke an RPC
 type MethodInvocation struct {
-	*MethodDescriptor
-	Message
+	*desc.MethodDescriptor
+	*dynamic.Message
 }
 
 // Message defines general methods to map JSON to grpc

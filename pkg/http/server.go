@@ -1,9 +1,7 @@
 package http
 
 import (
-	"fmt"
 	"io/ioutil"
-	"log"
 	"net"
 	"net/http"
 
@@ -41,24 +39,7 @@ func (s *Server) Serve(ln net.Listener) error {
 }
 
 func (s *Server) registerHandlers() {
-
-	// TODO: Setup Proxy
-	// TODO: Setup Handlers
-
-	s.router.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-
-		url := req.URL.Query().Get("url")
-
-		body, err := s.getFromOrigin(url)
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		s.datastore.Put(url, body)
-
-		r, _ := s.datastore.Get(url)
-		fmt.Fprintf(w, string(r))
-	})
+	s.router.HandleFunc("/", s.handleURLSearch)
 }
 
 func (s *Server) getFromOrigin(url string) ([]byte, error) {
