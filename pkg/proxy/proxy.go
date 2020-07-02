@@ -43,21 +43,24 @@ func (p *Proxy) Close() error {
 }
 
 // Call perfrms the gRPC call after reflection to obtain the descriptors
-func (p *Proxy) Call(ctx context.Context, service, method string, message []byte) ([]byte, error) {
+func (p *Proxy) Call(ctx context.Context, service, method string, message []byte) (ref.Message, error) {
 
 	invocation, err := p.reflector.CreateInvocation(ctx, service, method, message)
 	if err != nil {
 		return nil, err
 	}
 
-	outputMsg, err := p.stub.InvokeRpc(ctx, invocation.MethodDescriptor, invocation.Message)
+	o, err := p.stub.InvokeRpc(ctx,
+		invocation.MethodDescriptor.AsProtoreflectDescriptor(),
+		invocation.Message.AsProtoreflectMessage())
 	if err != nil {
 		return nil, err
 	}
 
-	m, err := outputMsg.MethodDescriptor.GetOutputType().NewMessage()
+	outputMsg := invocation.MethodDescriptor.GetOutputType().NewMessage()
+	err = outputMsg.ConvertFrom(o)
 	if err != nil {
 		return nil, err
 	}
-	return m, nil
+	return outputMsg, nil
 }

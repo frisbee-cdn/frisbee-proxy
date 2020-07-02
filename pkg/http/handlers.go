@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/frisbee-cdn/frisbee-proxy/pkg/proxy"
+	proxy "github.com/frisbee-cdn/frisbee-proxy/pkg/proxy"
 )
 
 func (s *Server) handleURLSearch(w http.ResponseWriter, req *http.Request) {

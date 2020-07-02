@@ -41,7 +41,6 @@ func (s *Server) Serve(ln net.Listener) error {
 func (s *Server) registerHandlers() {
 	s.router.HandleFunc("/", s.handleURLSearch)
 }
-
 func (s *Server) getFromOrigin(url string) ([]byte, error) {
 
 	if url != "" {

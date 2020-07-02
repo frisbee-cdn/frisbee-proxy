@@ -8,16 +8,17 @@ import (
 
 // MethodInvocation contains the MethodDescriptor and the Message used to invoke an RPC
 type MethodInvocation struct {
-	*desc.MethodDescriptor
-	*dynamic.Message
+	*MethodDescriptor
+	Message
 }
 
 // Message defines general methods to map JSON to grpc
 type Message interface {
 	MarshalJSON() ([]byte, error)
-	UnmarshamlJSON(b []byte) error
+	UnmarshalJSON(b []byte) error
 
 	ConvertFrom(target proto.Message) error
+	AsProtoreflectMessage() *dynamic.Message
 }
 
 // MethodDescriptor represents the method type
@@ -40,11 +41,17 @@ func (m *MethodDescriptor) GetOutputType() *MessageDescriptor {
 	}
 }
 
+// AsProtoreflectDescriptor
+func (m *MethodDescriptor) AsProtoreflectDescriptor() *desc.MethodDescriptor {
+	return m.MethodDescriptor
+}
+
 // MessageDescriptor represents the message type
 type MessageDescriptor struct {
 	desc *desc.MessageDescriptor
 }
 
+// NewMessage
 func (m *MessageDescriptor) NewMessage() *MessageImpl {
 
 	return &MessageImpl{
@@ -56,20 +63,31 @@ type MessageImpl struct {
 	*dynamic.Message
 }
 
+// MarshalJSON
 func (m *MessageImpl) MarshalJSON() ([]byte, error) {
 
 	b, err := m.Message.MarshalJSON()
 	if err != nil {
 		return nil, err
 	}
-
 	return b, nil
 }
 
-func (m *MessageImpl) UnmarshamlJSON(b []byte) error {
+// UnmarshalJSON
+func (m *MessageImpl) UnmarshalJSON(b []byte) error {
 
 	if err := m.Message.UnmarshalJSON(b); err != nil {
 		return err
 	}
 	return nil
+}
+
+// ConvertFrom
+func (m *MessageImpl) ConvertFrom(target proto.Message) error {
+	return m.Message.ConvertFrom(target)
+}
+
+// AsProtoreflectMessage
+func (m *MessageImpl) AsProtoreflectMessage() *dynamic.Message {
+	return m.Message
 }
