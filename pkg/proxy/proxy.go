@@ -13,7 +13,7 @@ import (
 // Proxy describes the Proxy
 type Proxy struct {
 	cc        *grpc.ClientConn
-	reflector ref.Reflector
+	reflector *ref.Reflector
 	stub      grpcdynamic.Stub
 }
 

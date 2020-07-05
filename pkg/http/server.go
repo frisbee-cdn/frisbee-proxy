@@ -18,7 +18,6 @@ type Server struct {
 func NewServer() *Server {
 	s := &Server{
 		router: http.NewServeMux(),
-		// TODO: Provide configuration structure
 		datastore: cache.NewMapDataStore(50),
 	}
 	s.registerHandlers()
@@ -41,6 +40,7 @@ func (s *Server) Serve(ln net.Listener) error {
 func (s *Server) registerHandlers() {
 	s.router.HandleFunc("/", s.handleURLSearch)
 }
+
 func (s *Server) getFromOrigin(url string) ([]byte, error) {
 
 	if url != "" {

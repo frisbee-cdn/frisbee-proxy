@@ -13,13 +13,12 @@ type Reflector struct {
 }
 
 // NewReflector
-func NewReflector(rc *grpcreflect.Client) Reflector {
-	return Reflector{reflectClient: rc}
+func NewReflector(rc *grpcreflect.Client) *Reflector {
+	return &Reflector{reflectClient: rc}
 }
 
 // CreateInvocation
-func (r *Reflector) CreateInvocation(ctx context.Context,
-	serviceName, methodName string, input []byte) (*MethodInvocation, error) {
+func (r *Reflector) CreateInvocation(ctx context.Context, serviceName, methodName string, input []byte) (*MethodInvocation, error) {
 
 	s, err := r.reflectClient.ResolveService(serviceName)
 	if err != nil {
